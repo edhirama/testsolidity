@@ -48,18 +48,19 @@ contract('RCoin', function(accounts) {
     var totalRatings;
     var currentRating;
     var lastRating = 4;
+    var meta;
 
     return RCoin.deployed().then(function(instance) {
-        rcoin = instance;
-        return rcoin.addProduct("primeiro produto", 123);
-    }).then(function (productName) {
-        return rcoin.products[productName]
+      meta = instance;
+      return meta.addProduct("primeiro produto", 123);
+    }).then(function (productIndex) {
+        return meta.products[productIndex]
     }).then(function(product) {
         return product.rating
     }).then(function(rating) {
         totalRatings = rating.amount
         currentRating = rating.current
-        return rcoin.rateProduct(product, lastRating)
+        return meta.rateProduct(product, lastRating)
     }).then(function(updatedRating) {
         assert.equal(updatedRating, ((totalRatings * currentRating) + lastRating)/(totalRatings + 1), "resulting ratings are different")
     });

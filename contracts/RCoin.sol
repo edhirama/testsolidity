@@ -1,8 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 
-contract RCoin is Ownable { 
+contract RCoin is Ownable, StandardToken { 
     
     struct Rating {
         uint current;
@@ -10,23 +11,29 @@ contract RCoin is Ownable {
     }
 
     struct Product {
-        bytes32 name;
+        string name;
         uint price;
         Rating rating;
     }
 
-    mapping (address => uint) balances;
-
     //Dynamically sized array of products
-    mapping (bytes32 => Product)  products;
+    mapping (uint => Product)  products;
 
     address public admin;
+
+    uint initialSupply = 1000000;
+    mapping (address => uint) balances;
+
+    uint indexProduct = 1;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     
     constructor() public {
-        balances[msg.sender] = 1000000;
+        totalSupply_ = initialSupply;
+        balances[msg.sender] = totalSupply_;
         admin = msg.sender;
+        addProduct("teste", 11);
+        addProduct("teste2", 12);
     }
 
     // constructor(bytes32[] productNames, uint[] productPrices) public {
@@ -48,11 +55,10 @@ contract RCoin is Ownable {
     //     }
     // }
 
-    function addProduct(bytes32 name, uint price) public returns (bytes32 productName) {
+    function addProduct(string name, uint price) public returns (uint productIndex) {
         require(msg.sender == admin, "only admin can create products");
         require(price > 0, "unacceptable price value");
-        
-        products[name] = Product({
+        Product memory product = Product({
             name: name,
             price: price,
             rating: Rating({
@@ -60,8 +66,10 @@ contract RCoin is Ownable {
                 amount: 0
             })
             });
+        products[indexProduct] = product; 
 
-        return products[name].name;
+        indexProduct += 1;
+        return indexProduct - 1;
     }
 
     function sendCoin(address receiver, uint amount) public returns(bool sufficient) {
@@ -79,11 +87,11 @@ contract RCoin is Ownable {
         return balances[addr];
     }
 
-    function rateProduct(bytes32 productName, uint rating) public returns (uint) {
+    function rateProduct(uint productIndex, uint rating) public returns (uint) {
         require(rating >= 0 && rating <= 5, "invalid rating value");
-        uint current = products[productName].rating.current;
-        uint amount = products[productName].rating.amount;
-        products[productName].rating.current = ((current * amount) + rating)/(amount + 1);
-        return products[productName].rating.current;
+        uint current = products[productIndex].rating.current;
+        uint amount = products[productIndex].rating.amount;
+        products[productIndex].rating.current = ((current * amount) + rating)/(amount + 1);
+        return products[productIndex].rating.current;
     }
 }
