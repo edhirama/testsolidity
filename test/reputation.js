@@ -1,68 +1,50 @@
-var RCoin = artifacts.require("./build/RCoin.sol");
+var RCoin = artifacts.require("./RCoin.sol");
 
-contract('RCoin', function(accounts) {
-  it("should put 1000000 RCoin in the first account", function() {
-    return RCoin.deployed().then(function(instance) {
-      return instance.getBalance.call(accounts[0]);
-    }).then(function(balance) {
-      assert.equal(balance.valueOf(), 1000000, "1000000 wasn't in the first account");
-    });
+contract('RCoin', function (accounts) {
+
+  it("should put 1000000 RCoin in the first account", function () {
+    return RCoin.deployed()
+      .then(function (instance) {
+        return instance.getBalance.call(accounts[0]);
+      }).then(function (balance) {
+        assert.equal(balance.valueOf(), 1000000, "1000000 wasn't in the first account");
+      });
   });
-  it("should send coin correctly", function() {
-    var meta;
 
-    // Get initial balances of first and second account.
-    var account_one = accounts[0];
-    var account_two = accounts[1];
+  it("should rate products correctly", async () => {
+    const productIndex = 0
 
-    var account_one_starting_balance;
-    var account_two_starting_balance;
-    var account_one_ending_balance;
-    var account_two_ending_balance;
+    const rating1 = 3;
+    const rating2 = 1;
+    const rating3 = 5;
 
-    var amount = 10;
+    var newInstance;
 
-    return RCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.getBalance.call(account_one);
-    }).then(function(balance) {
-      account_one_starting_balance = balance.toNumber();
-      return meta.getBalance.call(account_two);
-    }).then(function(balance) {
-      account_two_starting_balance = balance.toNumber();
-      return meta.sendCoin(account_two, amount, {from: account_one});
-    }).then(function() {
-      return meta.getBalance.call(account_one);
-    }).then(function(balance) {
-      account_one_ending_balance = balance.toNumber();
-      return meta.getBalance.call(account_two);
-    }).then(function(balance) {
-      account_two_ending_balance = balance.toNumber();
+    //nova instancia
+    var newInstance = await RCoin.new()
 
-      assert.equal(account_one_ending_balance, account_one_starting_balance - amount, "Amount wasn't correctly taken from the sender");
-      assert.equal(account_two_ending_balance, account_two_starting_balance + amount, "Amount wasn't correctly sent to the receiver");
-    });
+    //add product
+    await newInstance.addProduct("primeiro produto", 123)
+
+    //apenas teste do teste kkkkk (que poderia ser outro teste separado)
+    await newInstance.rateProduct(productIndex, rating1)
+    await newInstance.rateProduct(productIndex, rating2)
+
+    //rate product
+    return newInstance.rateProduct(productIndex, rating3)
+      .then(async () => {
+
+        //get Rating do blockchain
+        var rating = await newInstance.getRating(productIndex)
+
+        //metodo retorna um array
+        var currentRating = rating[0].toNumber();
+        var amountRating = rating[1].toNumber();
+
+        let expected = (rating1 + rating2 + rating3) / amountRating;
+
+        assert.equal(expected, currentRating)
+      });
   });
-  it("should rate products correctly", function() {
-    var productIndex = 0
-    var totalRatings;
-    var currentRating;
-    var lastRating = 4;
-    var meta;
 
-    return RCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.addProduct("primeiro produto", 123);
-    }).then(function (productIndex) {
-        return meta.products[productIndex]
-    }).then(function(product) {
-        return product.rating
-    }).then(function(rating) {
-        totalRatings = rating.amount
-        currentRating = rating.current
-        return meta.rateProduct(product, lastRating)
-    }).then(function(updatedRating) {
-        assert.equal(updatedRating, ((totalRatings * currentRating) + lastRating)/(totalRatings + 1), "resulting ratings are different")
-    });
-  });
 });
