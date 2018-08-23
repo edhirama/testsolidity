@@ -10,49 +10,43 @@ contract('RCoin', function (accounts) {
         assert.equal(balance.valueOf(), 1000000, "1000000 wasn't in the first account");
       });
   });
-  it("should rate products correctly", async () => {
-    const productIndex = 0
-
-    const rating1 = 3;
-    const rating2 = 1;
-    const rating3 = 5;
-
-    var newInstance;
-
-    //nova instancia
-    var newInstance = await RCoin.new()
-
-    //add product
-    await newInstance.addProduct("primeiro produto", 123)
-
-    //apenas teste do teste (que poderia ser outro teste separado)
-    await newInstance.rateProduct(productIndex, rating1)
-    await newInstance.rateProduct(productIndex, rating2)
-
-    //rate product
-    return newInstance.rateProduct(productIndex, rating3)
-      .then(async () => {
-
-        //get Rating do blockchain
-        var rating = await newInstance.getRating(productIndex)
-
-        //metodo retorna um array
-        var currentRating = rating[0].toNumber();
-        var amountRating = rating[1].toNumber();
-
-        let expected = (rating1 + rating2 + rating3) / amountRating;
-
-        assert.equal(expected, currentRating)
-      });
-  });
-  it("Should not allow adding a product with the another address.", async () => {
+  it("should not let a person other than the owner to add a product", async() => {
+    const productIndex = 2;
     try {
-        var rcoin = await RCoin.deployed();
-        await rcoin.addProduct("Product 1", 123, { from: accounts[5]});
-        assert(false);
-    } catch (_err) {
-        assert(_err);
+      var newInstance;
+      newInstance = await RCoin.new();
+
+      await newInstance.addProduct("producto 2", 150, {from: accounts[4]});
+      assert(false)
+    } catch(_err) {
+      assert(_err)
     }
   });
+  it("should only allow a vote per persona", async () => {
+    const productIndex = 0;
+    const rating1 = 3;
+    const rating2 = 4;
+    try {
+      var newInstance = await RCoin.new();
 
+      await newInstance.addProduct("primeiro produto", 123);
+
+      await newInstance.rateProduct(productIndex, rating1);
+
+      await newInstance.rateProduct(productIndex, rating2);
+
+      assert(false);
+    } catch(_err){
+      assert(_err);
+    }
+  });
+  it("should let the owner add a product", async() => {
+    const productIndex = 1;
+
+    var newInstance;
+    newInstance = await RCoin.new();
+
+    await newInstance.addProduct("produto 1", 150)
+    assert(true)
+  });
 });
