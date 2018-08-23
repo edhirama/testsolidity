@@ -10,7 +10,6 @@ contract('RCoin', function (accounts) {
         assert.equal(balance.valueOf(), 1000000, "1000000 wasn't in the first account");
       });
   });
-
   it("should rate products correctly", async () => {
     const productIndex = 0
 
@@ -26,7 +25,7 @@ contract('RCoin', function (accounts) {
     //add product
     await newInstance.addProduct("primeiro produto", 123)
 
-    //apenas teste do teste kkkkk (que poderia ser outro teste separado)
+    //apenas teste do teste (que poderia ser outro teste separado)
     await newInstance.rateProduct(productIndex, rating1)
     await newInstance.rateProduct(productIndex, rating2)
 
@@ -45,6 +44,15 @@ contract('RCoin', function (accounts) {
 
         assert.equal(expected, currentRating)
       });
+  });
+  it("Should not allow adding a product with the another address.", async () => {
+    try {
+        var rcoin = await RCoin.deployed();
+        await rcoin.addProduct("Product 1", 123, { from: accounts[5]});
+        assert(false);
+    } catch (_err) {
+        assert(_err);
+    }
   });
 
 });

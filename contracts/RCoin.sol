@@ -6,7 +6,7 @@ contract RCoin is Ownable, StandardToken {
     struct Rating {
         uint current;
         uint amount;
-        mapping (address => bool) rated;
+        mapping (address => uint) rates;
     }
     struct Product {
         string name;
@@ -44,18 +44,22 @@ contract RCoin is Ownable, StandardToken {
         indexProduct += 1;
         return indexProduct - 1;
     }
+
     function getBalance(address addr) public view returns (uint) {
         return balances[addr];
     }
+
     function rateProduct(uint productIndex, uint rating) public returns (uint) {
         require(rating >= 0 && rating <= 5, "invalid rating value");
-        require(products[productIndex].rating.rated[msg.sender] == false, "user has already voted");
+        require(products[productIndex].price >= 0, "product does not exist");
+        require(products[productIndex].rating.rates[msg.sender] > 0, "user has already voted");
         uint current = products[productIndex].rating.current;
         uint amount = products[productIndex].rating.amount++;
         products[productIndex].rating.current = ((current * amount) + rating)/(amount + 1);
-        products[productIndex].rating.rated[msg.sender] = true;
+        products[productIndex].rating.rates[msg.sender] = rating;
         return products[productIndex].rating.current;
     }
+
     function getRating(uint16 index) public view returns (uint, uint)  {
         Rating memory rating = products[index].rating;
         return (rating.current, rating.amount);
