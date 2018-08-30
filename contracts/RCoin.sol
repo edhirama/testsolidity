@@ -20,7 +20,8 @@ contract RCoin is Ownable, StandardToken {
     mapping (address => uint) balances;
     uint indexProduct = 1;
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    
+    event RateProduct(uint productIndex, uint rating);
+
     constructor() public {
         totalSupply_ = initialSupply;
         balances[msg.sender] = totalSupply_;
@@ -44,10 +45,9 @@ contract RCoin is Ownable, StandardToken {
         indexProduct += 1;
         return indexProduct - 1;
     }
-
-    function getProductPrice(uint16 index) public view returns (uint) {
-        Product memory product = products[index];
-        return product.price;
+    
+    function getProductIndex() public view returns (uint index){
+        return indexProduct;
     }
 
     function getBalance(address addr) public view returns (uint) {
@@ -62,6 +62,7 @@ contract RCoin is Ownable, StandardToken {
         uint amount = products[productIndex].rating.amount++;
         products[productIndex].rating.current = ((current * amount) + rating)/(amount + 1);
         products[productIndex].rating.rated[msg.sender] = true;
+        emit RateProduct(productIndex, rating);
         return products[productIndex].rating.current;
     }
 

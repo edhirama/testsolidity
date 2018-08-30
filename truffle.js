@@ -13,12 +13,19 @@
  */
 
 
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var mnemonic = "rack live lecture water pill beach ladder plunge borrow salute home cash";
 module.exports = {
+  // See <http://truffleframework.com/docs/advanced/configuration>
+  // to customize your Truffle configuration!
   networks: {
-    development: {
-      host: "127.0.0.1",
-      port: 7545,
-      network_id: "*"
+    rinkeby: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic,     "https://rinkeby.infura.io/v3/9e93687a9c214bfca59f5405981bba7b");
+      },
+      network_id: 1,
+      gas: 4500000,
+      gasPrice: 10000000000
     }
   }
 };
