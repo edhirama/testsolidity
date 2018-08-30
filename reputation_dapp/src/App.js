@@ -11,7 +11,7 @@ class App extends Component {
 
   async  componentDidMount() {
     console.log(web3.eth.accounts);
-    await web3.eth.getAccounts(function(err, res){ accounts = res; });
+    const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
     const balance = await web3.eth.getBalance(account);
     const balanceInEther = balance / 1000000000000000000;
@@ -23,7 +23,7 @@ class App extends Component {
     event.preventDefault();
     const accounts = await web3.eth.getAccounts();
     this.setState({ message: 'Creating a product... Mining in process!' });
-    await rcoin.methods.addProduct(this.state.value).send({ from: accounts[0], gas: 4000000, gasPrice: 100000000 });
+    await rcoin.methods.addProduct(this.state.value, 100).send({ from: accounts[0], gas: 4000000, gasPrice: 100000000 });
     this.setState({ message: 'Product created!'});
     const newValue = Number(this.state.quantityProduct) + 1;
     this.setState({ quantityProduct: newValue});

@@ -1,6 +1,7 @@
 import web3 from './web3';
-const address = '0x2d104976a6e8e602713cdbabe2ce6e7f2cd708cf';
-const abi = [{
+const address = '0xdc45ffe90639f6d982dd4a17d659261d6efa25d5';
+const abi = [
+  {
     "constant": false,
     "inputs": [
       {
@@ -258,6 +259,23 @@ const abi = [{
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "name": "productIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "rating",
+        "type": "uint256"
+      }
+    ],
+    "name": "RateProduct",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "name": "owner",
         "type": "address"
@@ -330,16 +348,11 @@ const abi = [{
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "index",
-        "type": "uint16"
-      }
-    ],
-    "name": "getProductPrice",
+    "inputs": [],
+    "name": "getProductIndex",
     "outputs": [
       {
-        "name": "",
+        "name": "index",
         "type": "uint256"
       }
     ],
@@ -411,6 +424,7 @@ const abi = [{
     "payable": false,
     "stateMutability": "view",
     "type": "function"
-  }];
+  }
+];
 
-  export default new web3.eth.contract(abi, address);
+  export default new web3.eth.Contract(abi, address);
